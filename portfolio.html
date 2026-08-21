@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subroto Saklani — Event, Seminar & Concert Photography</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a12;
+    --bg-alt:#100f1c;
+    --panel:#15142450;
+    --paper:#f5f2ed;
+    --muted:#9a97b0;
+    --magenta:#ff2e93;
+    --cyan:#00e5ff;
+    --amber:#ffb627;
+    --violet:#7b2ff7;
+    --line: rgba(245,242,237,0.12);
+    --maxw: 1240px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg);
+    color:var(--paper);
+    font-family:'Space Grotesk', sans-serif;
+    overflow-x:hidden;
+    cursor:default;
+  }
+  ::selection{ background:var(--magenta); color:#0a0a12; }
+
+  .display{
+    font-family:'Anton', sans-serif;
+    letter-spacing:0.01em;
+    text-transform:uppercase;
+    line-height:0.92;
+  }
+  .mono{
+    font-family:'JetBrains Mono', monospace;
+    text-transform:uppercase;
+    letter-spacing:0.14em;
+    font-size:0.72rem;
+  }
+  a{ color:inherit; text-decoration:none; }
+  img{ max-width:100%; display:block; }
+
+  /* cursor glow */
+  #glow-cursor{
+    position:fixed; top:0; left:0;
+    width:340px; height:340px;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:2;
+    background: radial-gradient(circle, rgba(255,46,147,0.16), rgba(0,229,255,0.10) 45%, transparent 70%);
+    transform:translate(-50%,-50%);
+    mix-blend-mode:screen;
+    transition: opacity .3s ease;
+    will-change:transform;
+  }
+
+  /* NAV */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 22px clamp(20px, 5vw, 64px);
+    backdrop-filter: blur(10px);
+    background: linear-gradient(to bottom, rgba(10,10,18,0.75), transparent);
+  }
+  .brand{ display:flex; flex-direction:column; gap:2px; }
+  .brand .name{ font-family:'Anton', sans-serif; font-size:1.25rem; letter-spacing:0.04em; }
+  .brand .role{ font-size:0.62rem; color:var(--muted); letter-spacing:0.18em; text-transform:uppercase; }
+  nav.links{ display:flex; gap:36px; align-items:center; }
+  nav.links a{
+    font-size:0.82rem; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--muted); position:relative; padding:4px 0;
+  }
+  nav.links a::after{
+    content:''; position:absolute; left:0; bottom:0; width:0; height:1px;
+    background:var(--cyan); transition:width .25s ease;
+  }
+  nav.links a:hover{ color:var(--paper); }
+  nav.links a:hover::after{ width:100%; }
+  .cta-btn{
+    border:1px solid var(--paper); padding:10px 20px;
+    font-size:0.78rem; letter-spacing:0.08em; text-transform:uppercase;
+    border-radius:999px; transition: all .25s ease;
+    white-space:nowrap;
+  }
+  .cta-btn:hover{ background:var(--paper); color:var(--bg); }
+  .menu-toggle{ display:none; flex-direction:column; gap:5px; cursor:pointer; z-index:60; background:none; border:0; }
+  .menu-toggle span{ width:24px; height:2px; background:var(--paper); display:block; }
+
+  /* HERO */
+  #hero{
+    position:relative; height:100vh; min-height:640px;
+    display:flex; align-items:flex-end;
+    overflow:hidden;
+  }
+  #hero canvas{ position:absolute; inset:0; z-index:0; }
+  .hero-vignette{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background: radial-gradient(ellipse at 50% 100%, transparent 30%, var(--bg) 92%),
+                linear-gradient(to top, var(--bg) 0%, transparent 30%);
+  }
+  .hero-inner{
+    position:relative; z-index:2; width:100%;
+    max-width:var(--maxw); margin:0 auto;
+    padding: 0 clamp(20px,5vw,64px) 70px;
+    display:flex; justify-content:space-between; align-items:flex-end; gap:40px;
+  }
+  .hero-eyebrow{
+    color:var(--amber); margin-bottom:18px; display:flex; align-items:center; gap:10px;
+  }
+  .hero-eyebrow::before{
+    content:''; width:7px; height:7px; border-radius:50%;
+    background:var(--amber); box-shadow:0 0 12px var(--amber);
+  }
+  h1.hero-title{
+    font-size: clamp(3rem, 8.6vw, 7.6rem);
+    background: linear-gradient(100deg, #fff 20%, var(--cyan) 55%, var(--magenta) 90%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .hero-sub{
+    max-width:380px; color:var(--muted); font-size:1rem; line-height:1.6;
+    padding-bottom:10px;
+  }
+  .scroll-cue{
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+    z-index:2; display:flex; flex-direction:column; align-items:center; gap:8px;
+    color:var(--muted); font-size:0.65rem;
+  }
+  .scroll-cue .stick{
+    width:1px; height:34px; background:linear-gradient(var(--muted), transparent);
+    animation:pulse-stick 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse-stick{ 0%,100%{opacity:.2} 50%{opacity:1} }
+
+  section{ position:relative; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding: 0 clamp(20px,5vw,64px); }
+
+  /* STATS */
+  #stats{ padding:64px 0; border-bottom:1px solid var(--line); border-top:1px solid var(--line); }
+  .stats-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:20px;
+  }
+  .stat{ text-align:left; }
+  .stat .num{
+    font-family:'Anton', sans-serif; font-size:clamp(2.2rem,5vw,3.6rem);
+    background:linear-gradient(120deg,var(--cyan),var(--magenta));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .stat .label{ color:var(--muted); font-size:0.78rem; letter-spacing:0.05em; margin-top:6px; }
+
+  /* SECTION HEADS */
+  .section-head{ padding: 120px 0 56px; }
+  .section-head .eyebrow{ color:var(--cyan); margin-bottom:14px; }
+  .section-head h2{ font-size:clamp(2.2rem,5vw,4rem); max-width:780px; }
+  .section-head p.desc{ color:var(--muted); max-width:520px; margin-top:18px; line-height:1.7; }
+
+  /* SERVICES */
+  #services{ padding-bottom:120px; }
+  .services-grid{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:1px;
+    background:var(--line); border:1px solid var(--line); border-radius:18px; overflow:hidden;
+  }
+  .service-card{
+    background:var(--bg); padding:44px 34px; position:relative;
+    transition: background .35s ease;
+  }
+  .service-card:hover{ background:var(--bg-alt); }
+  .service-card .icon{ width:44px; height:44px; margin-bottom:26px; }
+  .service-card h3{ font-family:'Anton', sans-serif; font-size:1.5rem; text-transform:uppercase; margin-bottom:14px; }
+  .service-card p{ color:var(--muted); font-size:0.92rem; line-height:1.7; margin-bottom:18px; }
+  .service-card .tag-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .service-card .tag{
+    font-size:0.66rem; letter-spacing:0.06em; text-transform:uppercase;
+    padding:5px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted);
+  }
+  .service-card:nth-child(1) .icon *{ stroke:var(--magenta); }
+  .service-card:nth-child(2) .icon *{ stroke:var(--cyan); }
+  .service-card:nth-child(3) .icon *{ stroke:var(--amber); }
+
+  /* GALLERY */
+  #gallery{ padding-bottom:120px; }
+  .gallery-grid{
+    display:grid; grid-template-columns:repeat(6,1fr); gap:18px;
+    perspective:1400px;
+  }
+  .g-item{
+    position:relative; border-radius:14px; overflow:hidden;
+    grid-column:span 3; height:340px;
+    background:var(--bg-alt);
+    transform-style:preserve-3d;
+    transition:transform .12s ease-out, box-shadow .3s ease;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.6);
+  }
+  .g-item.tall{ grid-row:span 2; height:100%; min-height:700px; }
+  .g-item.wide{ grid-column:span 6; height:420px; }
+  .g-item img{
+    width:100%; height:100%; object-fit:cover;
+    transform: translateZ(0) scale(1.02);
+    transition: transform .5s ease, filter .5s ease;
+    filter:saturate(0.9) brightness(0.85);
+  }
+  .g-item:hover img{ transform: scale(1.08); filter:saturate(1.15) brightness(1); }
+  .g-caption{
+    position:absolute; left:0; right:0; bottom:0; padding:20px;
+    background:linear-gradient(to top, rgba(10,10,18,0.9), transparent);
+    transform: translateZ(40px);
+  }
+  .g-caption .cat{ color:var(--amber); font-size:0.64rem; margin-bottom:4px; }
+  .g-caption .title{ font-family:'Anton', sans-serif; font-size:1.15rem; text-transform:uppercase; }
+
+  /* TESTIMONIALS */
+  #testimonials{ padding-bottom:120px; }
+  .t-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
+  .t-card{
+    border:1px solid var(--line); border-radius:16px; padding:32px 28px;
+    background: linear-gradient(160deg, var(--bg-alt), var(--bg));
+  }
+  .t-card .quote-mark{ font-family:'Anton',sans-serif; font-size:2.6rem; color:var(--magenta); line-height:1; margin-bottom:10px; }
+  .t-card p.quote{ color:#ded9f0; line-height:1.75; font-size:0.96rem; margin-bottom:22px; }
+  .t-card .who{ display:flex; align-items:center; gap:12px; }
+  .t-card .avatar{
+    width:38px; height:38px; border-radius:50%;
+    background:linear-gradient(135deg,var(--cyan),var(--violet));
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Anton',sans-serif; font-size:0.9rem;
+  }
+  .t-card .who .n{ font-size:0.88rem; }
+  .t-card .who .r{ font-size:0.72rem; color:var(--muted); }
+
+  /* CONTACT */
+  #contact{ padding-bottom:130px; }
+  .contact-panel{
+    display:grid; grid-template-columns:1fr 1fr; gap:60px;
+    border:1px solid var(--line); border-radius:22px; padding:56px;
+    background: radial-gradient(circle at 100% 0%, rgba(123,47,247,0.16), transparent 55%),
+                radial-gradient(circle at 0% 100%, rgba(0,229,255,0.10), transparent 50%),
+                var(--bg-alt);
+  }
+  .contact-left h2{ font-size:clamp(2rem,4vw,3.2rem); margin-bottom:18px; }
+  .contact-left p{ color:var(--muted); line-height:1.7; max-width:400px; margin-bottom:30px; }
+  .info-row{ display:flex; gap:14px; margin-bottom:16px; font-size:0.9rem; }
+  .info-row .k{ color:var(--muted); width:90px; flex-shrink:0; text-transform:uppercase; font-size:0.7rem; letter-spacing:0.06em; padding-top:2px; }
+  form{ display:flex; flex-direction:column; gap:16px; }
+  .field{ display:flex; flex-direction:column; gap:8px; }
+  .field label{ font-size:0.68rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); }
+  .field input, .field select, .field textarea{
+    background:transparent; border:1px solid var(--line); border-radius:10px;
+    padding:13px 14px; color:var(--paper); font-family:inherit; font-size:0.92rem;
+    outline:none; transition:border-color .2s ease;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus{ border-color:var(--cyan); }
+  .field textarea{ resize:vertical; min-height:90px; }
+  .submit-btn{
+    margin-top:6px; padding:14px 24px; border-radius:10px; border:none;
+    background:linear-gradient(100deg,var(--magenta),var(--violet));
+    color:#fff; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; font-size:0.85rem;
+    cursor:pointer; transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .submit-btn:hover{ transform:translateY(-2px); box-shadow:0 10px 30px -10px rgba(255,46,147,0.6); }
+
+  footer{
+    border-top:1px solid var(--line); padding:36px 0;
+  }
+  .footer-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  .footer-row .mono{ color:var(--muted); }
+  .footer-socials{ display:flex; gap:22px; }
+  .footer-socials a{ color:var(--muted); font-size:0.8rem; text-transform:uppercase; letter-spacing:0.06em; }
+  .footer-socials a:hover{ color:var(--paper); }
+
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  @media (max-width: 900px){
+    nav.links{ display:none; }
+    .menu-toggle{ display:flex; }
+    .stats-grid{ grid-template-columns:repeat(2,1fr); row-gap:32px; }
+    .services-grid{ grid-template-columns:1fr; }
+    .gallery-grid{ grid-template-columns:repeat(2,1fr); }
+    .g-item{ grid-column:span 2 !important; height:280px !important; min-height:unset !important; }
+    .t-grid{ grid-template-columns:1fr; }
+    .contact-panel{ grid-template-columns:1fr; padding:32px; }
+    #glow-cursor{ display:none; }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .reveal{ transition:none; opacity:1; transform:none; }
+    .scroll-cue .stick{ animation:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="glow-cursor"></div>
+
+<header>
+  <div class="brand">
+    <span class="name">SUBROTO SAKLANI</span>
+    <span class="role">Event · Seminar · Concert Photography</span>
+  </div>
+  <nav class="links">
+    <a href="#services">Coverage</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#testimonials">Clients</a>
+    <a href="#contact" class="cta-btn">Book a Date</a>
+  </nav>
+  <button class="menu-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+</header>
+
+<section id="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-vignette"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-eyebrow mono">Based in Delhi — Touring for the right room</div>
+      <h1 class="hero-title display reveal">I shoot<br>the room<br>when it<br>comes alive</h1>
+    </div>
+    <p class="hero-sub reveal">Front-row at concerts, front-of-house at conferences, and everywhere the light changes fast. 300+ events, seminars and shows documented since 2016 — the moment goes by once, the frame stays.</p>
+  </div>
+  <div class="scroll-cue"><span>SCROLL</span><span class="stick"></span></div>
+</section>
+
+<section id="stats">
+  <div class="wrap stats-grid">
+    <div class="stat reveal">
+      <div class="num" data-count="300">0</div>
+      <div class="label mono">Events Documented</div>
+    </div>
+    <div class="stat reveal">
+      <div class="num" data-count="120">0</div>
+      <div class="label mono">Concerts &amp; Live Shows</div>
+    </div>
+    <div class="stat reveal">
+      <div class="num" data-count="90">0</div>
+      <div class="label mono">Seminars &amp; Conferences</div>
+    </div>
+    <div class="stat reveal">
+      <div class="num" data-count="9">0</div>
+      <div class="label mono">Years Behind the Lens</div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap section-head reveal">
+    <div class="eyebrow mono">What I cover</div>
+    <h2 class="display">Three rooms.<br>One instinct for the moment before it happens.</h2>
+    <p class="desc">Every kind of gathering has its own rhythm of light and attention. I shoot for that rhythm, not against it.</p>
+  </div>
+  <div class="wrap">
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <svg class="icon" viewBox="0 0 48 48" fill="none"><path d="M8 40L24 8L40 40" stroke-width="2.4" stroke-linejoin="round"/><path d="M16 40l8-16 8 16" stroke-width="2.4" stroke-linejoin="round"/><circle cx="24" cy="18" r="2.4" stroke-width="2.4"/></svg>
+        <h3>Concerts &amp; Live Shows</h3>
+        <p>Low light, moving bodies, one shot per beat. I work the pit and the wings to catch the frontman's peak and the drummer's follow-through, no re-takes possible.</p>
+        <div class="tag-row"><span class="tag">Stage light</span><span class="tag">Crowd energy</span><span class="tag">Backstage</span></div>
+      </div>
+      <div class="service-card reveal">
+        <svg class="icon" viewBox="0 0 48 48" fill="none"><rect x="6" y="10" width="36" height="24" rx="2" stroke-width="2.4"/><path d="M14 40h20M24 34v6" stroke-width="2.4" stroke-linecap="round"/><circle cx="24" cy="22" r="6" stroke-width="2.4"/></svg>
+        <h3>Seminars &amp; Conferences</h3>
+        <p>The keynote gesture, the panel's cross-talk, the hallway deal being made off to the side. Coverage built around what a recap deck actually needs.</p>
+        <div class="tag-row"><span class="tag">Speaker decks</span><span class="tag">Panels</span><span class="tag">Networking</span></div>
+      </div>
+      <div class="service-card reveal">
+        <svg class="icon" viewBox="0 0 48 48" fill="none"><path d="M24 6v10M24 6l-6 6M24 6l6 6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="14" cy="30" r="8" stroke-width="2.4"/><circle cx="34" cy="30" r="8" stroke-width="2.4"/><path d="M20 34h8" stroke-width="2.4"/></svg>
+        <h3>Launches &amp; Private Events</h3>
+        <p>Product reveals, milestone parties, festival activations — the version of your brand that only exists for one night, held onto for every version after it.</p>
+        <div class="tag-row"><span class="tag">Product launch</span><span class="tag">Brand activation</span><span class="tag">Private parties</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="gallery">
+  <div class="wrap section-head reveal">
+    <div class="eyebrow mono">Selected Frames</div>
+    <h2 class="display">From the pit,<br>the podium, the floor.</h2>
+  </div>
+  <div class="wrap">
+    <div class="gallery-grid">
+      <div class="g-item tall reveal">
+        <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?w=900&q=80" alt="Concert crowd under stage lights">
+        <div class="g-caption"><div class="cat mono">Concert</div><div class="title">Main Stage, Night Two</div></div>
+      </div>
+      <div class="g-item reveal">
+        <img src="https://images.unsplash.com/photo-1540039155733-5bb30b53aa14?w=900&q=80" alt="Band performing live on stage">
+        <div class="g-caption"><div class="cat mono">Concert</div><div class="title">The Drop</div></div>
+      </div>
+      <div class="g-item reveal">
+        <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=900&q=80" alt="Speaker presenting at a conference">
+        <div class="g-caption"><div class="cat mono">Seminar</div><div class="title">Keynote, Hall B</div></div>
+      </div>
+      <div class="g-item wide reveal">
+        <img src="https://images.unsplash.com/photo-1591115765373-5207764f72e7?w=1600&q=80" alt="Panel discussion at a conference with audience">
+        <div class="g-caption"><div class="cat mono">Seminar</div><div class="title">Panel — Closing Remarks</div></div>
+      </div>
+      <div class="g-item reveal">
+        <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900&q=80" alt="DJ performing with colorful stage lighting">
+        <div class="g-caption"><div class="cat mono">Concert</div><div class="title">Set Change</div></div>
+      </div>
+      <div class="g-item reveal">
+        <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?w=900&q=80" alt="Corporate networking event with attendees talking">
+        <div class="g-caption"><div class="cat mono">Event</div><div class="title">The Room, After Hours</div></div>
+      </div>
+      <div class="g-item wide reveal">
+        <img src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=1600&q=80" alt="Large concert crowd with hands raised">
+        <div class="g-caption"><div class="cat mono">Concert</div><div class="title">Everyone, At Once</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="testimonials">
+  <div class="wrap section-head reveal">
+    <div class="eyebrow mono">From the people in the room</div>
+    <h2 class="display">Trusted by tour managers<br>and program directors alike.</h2>
+  </div>
+  <div class="wrap t-grid">
+    <div class="t-card reveal">
+      <div class="quote-mark">"</div>
+      <p class="quote">Our stage lighting is brutal for photography — three colors changing every four bars. Rhea's gallery came back sharp and on-beat, no notes.</p>
+      <div class="who"><div class="avatar">TL</div><div><div class="n">Tanvi L.</div><div class="r">Tour Manager, Northline Collective</div></div></div>
+    </div>
+    <div class="t-card reveal">
+      <div class="quote-mark">"</div>
+      <p class="quote">We needed a recap deck by Monday morning. The keynote stills and panel candids arrived Sunday night, captioned and ready to drop in.</p>
+      <div class="who"><div class="avatar">AK</div><div><div class="n">Arun K.</div><div class="r">Program Director, FutureStack Summit</div></div></div>
+    </div>
+    <div class="t-card reveal">
+      <div class="quote-mark">"</div>
+      <p class="quote">She found the one frame of our founder's face right as the number hit the screen. That single photo is still our go-to for the press kit.</p>
+      <div class="who"><div class="avatar">MP</div><div><div class="n">Meera P.</div><div class="r">Head of Comms, Verto Labs</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="contact-panel reveal">
+      <div class="contact-left">
+        <h2 class="display">Got a date<br>and a stage?</h2>
+        <p>Tell me what's happening, when, and how the light is going to behave. I'll get back within a day with availability.</p>
+        <div class="info-row"><span class="k">Email</span><span>hello@rheakapoor.photo</span></div>
+        <div class="info-row"><span class="k">Phone</span><span>+91 98xxx xxxxx</span></div>
+        <div class="info-row"><span class="k">Based</span><span>Delhi NCR — touring nationally</span></div>
+      </div>
+      <form onsubmit="event.preventDefault(); this.reset(); document.getElementById('form-msg').style.opacity=1;">
+        <div class="field">
+          <label for="f-name">Name</label>
+          <input id="f-name" type="text" placeholder="Your name" required>
+        </div>
+        <div class="field">
+          <label for="f-type">Type of coverage</label>
+          <select id="f-type">
+            <option>Concert / Live Show</option>
+            <option>Seminar / Conference</option>
+            <option>Launch / Private Event</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-date">Event date</label>
+          <input id="f-date" type="date">
+        </div>
+        <div class="field">
+          <label for="f-msg">Details</label>
+          <textarea id="f-msg" placeholder="Venue, guest count, run of show..."></textarea>
+        </div>
+        <button class="submit-btn" type="submit">Send Inquiry</button>
+        <p id="form-msg" style="opacity:0; transition:opacity .3s ease; color:var(--cyan); font-size:0.8rem;">Thanks — this is a demo form, no message was actually sent.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-row">
+    <span class="mono">© 2026 Rhea Kapoor Photography</span>
+    <div class="footer-socials">
+      <a href="#">Instagram</a>
+      <a href="#">Behance</a>
+      <a href="#">LinkedIn</a>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ---------- cursor glow ---------- */
+const cursorGlow = document.getElementById('glow-cursor');
+window.addEventListener('pointermove', (e)=>{
+  cursorGlow.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%,-50%)`;
+});
+
+/* ---------- reveal on scroll ---------- */
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){ entry.target.classList.add('in'); io.unobserve(entry.target); }
+  });
+}, { threshold:0.12 });
+revealEls.forEach(el=>io.observe(el));
+
+/* ---------- counters ---------- */
+const counters = document.querySelectorAll('.num');
+const countIO = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const el = entry.target;
+      const target = parseInt(el.dataset.count,10);
+      const dur = 1400;
+      const start = performance.now();
+      function tick(now){
+        const p = Math.min(1, (now-start)/dur);
+        const eased = 1 - Math.pow(1-p, 3);
+        el.textContent = Math.round(eased*target) + (p>=1 && target>=100 ? '+' : (p>=1 ? '' : ''));
+        if(p<1) requestAnimationFrame(tick); else el.textContent = target + '+';
+      }
+      requestAnimationFrame(tick);
+      countIO.unobserve(el);
+    }
+  });
+}, { threshold:0.4 });
+counters.forEach(c=>countIO.observe(c));
+
+/* ---------- gallery 3D tilt ---------- */
+document.querySelectorAll('.g-item').forEach(card=>{
+  card.addEventListener('mousemove', (e)=>{
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left)/r.width - 0.5;
+    const y = (e.clientY - r.top)/r.height - 0.5;
+    card.style.transform = `rotateY(${x*10}deg) rotateX(${-y*10}deg) scale(1.02)`;
+  });
+  card.addEventListener('mouseleave', ()=>{ card.style.transform = 'rotateY(0) rotateX(0) scale(1)'; });
+});
+
+/* ---------- mobile menu ---------- */
+const toggle = document.querySelector('.menu-toggle');
+const links = document.querySelector('nav.links');
+toggle.addEventListener('click', ()=>{
+  const open = links.style.display === 'flex';
+  links.style.display = open ? 'none' : 'flex';
+  links.style.flexDirection = 'column';
+  links.style.position='fixed'; links.style.top='0'; links.style.right='0';
+  links.style.background='#0a0a12'; links.style.padding='90px 40px'; links.style.gap='26px';
+  links.style.width='min(78vw,320px)'; links.style.height='100vh'; links.style.zIndex='55';
+});
+
+/* =========================================================
+   THREE.JS HERO — concert light rig + drifting bokeh dust
+   ========================================================= */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const canvas = document.getElementById('hero-canvas');
+const heroSection = document.getElementById('hero');
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x0a0a12, 0.028);
+
+const camera = new THREE.PerspectiveCamera(55, window.innerWidth/heroSection.clientHeight, 0.1, 200);
+camera.position.set(0, 3.2, 15);
+camera.lookAt(0,2,0);
+
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, heroSection.clientHeight);
+renderer.setClearColor(0x0a0a12, 1);
+
+/* floor */
+const floorGeo = new THREE.PlaneGeometry(140, 140, 1, 1);
+const floorMat = new THREE.MeshBasicMaterial({ color:0x0a0a12 });
+const floor = new THREE.Mesh(floorGeo, floorMat);
+floor.rotation.x = -Math.PI/2;
+floor.position.y = -1;
+scene.add(floor);
+
+/* soft radial glow sprite texture (used for spotlight cones' glow ring + bokeh dust) */
+function makeGlowTexture(hex){
+  const size = 256;
+  const c = document.createElement('canvas');
+  c.width = c.height = size;
+  const ctx = c.getContext('2d');
+  const grd = ctx.createRadialGradient(size/2,size/2,0,size/2,size/2,size/2);
+  grd.addColorStop(0, hex + 'ff');
+  grd.addColorStop(0.4, hex + '88');
+  grd.addColorStop(1, hex + '00');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0,0,size,size);
+  return new THREE.CanvasTexture(c);
+}
+
+const glowTexMagenta = makeGlowTexture('#ff2e93');
+const glowTexCyan = makeGlowTexture('#00e5ff');
+const glowTexAmber = makeGlowTexture('#ffb627');
+const glowTextures = [glowTexMagenta, glowTexCyan, glowTexAmber];
+
+/* moving-head spotlight cones */
+const spotColors = [0xff2e93, 0x00e5ff, 0xffb627, 0x7b2ff7];
+const spotlights = [];
+const spotGroup = new THREE.Group();
+scene.add(spotGroup);
+
+for(let i=0;i<5;i++){
+  const color = spotColors[i % spotColors.length];
+  const coneGeo = new THREE.ConeGeometry(2.4, 13, 32, 1, true);
+  const coneMat = new THREE.MeshBasicMaterial({
+    color: color,
+    transparent:true,
+    opacity:0.10,
+    side:THREE.DoubleSide,
+    depthWrite:false,
+    blending:THREE.AdditiveBlending
+  });
+  const cone = new THREE.Mesh(coneGeo, coneMat);
+  cone.geometry.translate(0, -6.5, 0);
+
+  const pivot = new THREE.Group();
+  pivot.position.set((i-2)*4.2, 9, -6 + (i%2)*2);
+  pivot.rotation.x = Math.PI; // point downward by default before swing
+  pivot.add(cone);
+  spotGroup.add(pivot);
+
+  spotlights.push({
+    pivot,
+    baseSwing: (Math.random()*0.6+0.5) * (i%2===0?1:-1),
+    speed: 0.4 + Math.random()*0.5,
+    phase: Math.random()*Math.PI*2,
+    color
+  });
+}
+
+/* drifting bokeh / dust particles, lit like stage haze catching light */
+const particleCount = reduceMotion ? 0 : 260;
+const positions = new Float32Array(particleCount*3);
+const seeds = new Float32Array(particleCount);
+for(let i=0;i<particleCount;i++){
+  positions[i*3+0] = (Math.random()-0.5) * 34;
+  positions[i*3+1] = Math.random()*16 - 1;
+  positions[i*3+2] = (Math.random()-0.5) * 30 - 2;
+  seeds[i] = Math.random()*10;
+}
+const particleGeo = new THREE.BufferGeometry();
+particleGeo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+
+const particleMat = new THREE.PointsMaterial({
+  size: 0.5,
+  map: glowTexCyan,
+  transparent:true,
+  opacity:0.5,
+  blending:THREE.AdditiveBlending,
+  depthWrite:false,
+  vertexColors:false
+});
+const particles = new THREE.Points(particleGeo, particleMat);
+scene.add(particles);
+
+/* second particle layer, magenta tone, slower */
+const particleMat2 = particleMat.clone();
+particleMat2.map = glowTexMagenta;
+particleMat2.size = 0.35;
+particleMat2.opacity = 0.4;
+const particleGeo2 = particleGeo.clone();
+const particles2 = new THREE.Points(particleGeo2, particleMat2);
+particles2.position.x = 6;
+scene.add(particles2);
+
+/* subtle floor light pools that pulse under each spotlight */
+const pools = [];
+spotlights.forEach(sl=>{
+  const spr = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: glowTextures[Math.floor(Math.random()*glowTextures.length)],
+    color: sl.color,
+    transparent:true,
+    opacity:0.5,
+    blending:THREE.AdditiveBlending,
+    depthWrite:false
+  }));
+  spr.scale.set(6,6,1);
+  spr.position.set(sl.pivot.position.x, -0.9, sl.pivot.position.z-6);
+  scene.add(spr);
+  pools.push(spr);
+});
+
+/* mouse parallax */
+let mouseX = 0, mouseY = 0;
+window.addEventListener('pointermove', (e)=>{
+  mouseX = (e.clientX / window.innerWidth) - 0.5;
+  mouseY = (e.clientY / window.innerHeight) - 0.5;
+});
+
+function resize(){
+  const w = window.innerWidth;
+  const h = heroSection.clientHeight;
+  camera.aspect = w/h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w,h);
+}
+window.addEventListener('resize', resize);
+
+let clockStart = performance.now();
+function animate(now){
+  const t = (now - clockStart) / 1000;
+
+  spotlights.forEach(sl=>{
+    const swing = Math.sin(t*sl.speed + sl.phase) * sl.baseSwing;
+    sl.pivot.rotation.z = swing * 0.5;
+    sl.pivot.rotation.x = Math.PI + Math.sin(t*sl.speed*0.6+sl.phase)*0.18;
+  });
+
+  if(particleCount){
+    const posAttr = particleGeo.attributes.position;
+    for(let i=0;i<particleCount;i++){
+      let y = posAttr.array[i*3+1] + 0.006 + Math.sin(t+seeds[i])*0.0008;
+      if(y > 15) y = -1;
+      posAttr.array[i*3+1] = y;
+    }
+    posAttr.needsUpdate = true;
+
+    const posAttr2 = particleGeo2.attributes.position;
+    for(let i=0;i<particleCount;i++){
+      let y = posAttr2.array[i*3+1] + 0.003 + Math.cos(t*0.7+seeds[i])*0.0006;
+      if(y > 15) y = -1;
+      posAttr2.array[i*3+1] = y;
+    }
+    posAttr2.needsUpdate = true;
+  }
+
+  pools.forEach((p, i)=>{
+    const s = 5.6 + Math.sin(t*0.8 + i)*1.1;
+    p.scale.set(s,s,1);
+    p.material.opacity = 0.35 + Math.sin(t*1.1+i)*0.15;
+  });
+
+  if(!reduceMotion){
+    camera.position.x += (mouseX*3 - camera.position.x) * 0.02;
+    camera.position.y += (3.2 - mouseY*1.4 - camera.position.y) * 0.02;
+    camera.lookAt(0,2,0);
+  }
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+requestAnimationFrame(animate);
+resize();
+</script>
+</body>
+</html>
